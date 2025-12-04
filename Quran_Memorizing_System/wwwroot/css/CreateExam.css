@@ -1,0 +1,45 @@
+﻿/* Section headings styled like QUESTION 1/2 */
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.section-divider {
+    border-top: 2px solid #000;
+    margin-bottom: 0.75rem;
+}
+
+/* Card-like containers similar to question boxes */
+.admin-box {
+    border: 1px solid #000;
+    border-radius: 0.25rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    background-color: #ffffff;
+}
+
+.admin-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Question list item similar to lesson cards but simpler */
+.question-list-item {
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-list-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}

@@ -1,0 +1,42 @@
+﻿/* Question layout */
+.question-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.question-divider {
+    border-top: 2px solid #000;
+    margin-bottom: 0.75rem;
+}
+
+.question-box {
+    border: 1px solid #000;
+    border-radius: 0.25rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Timer card */
+.timer-card {
+    background-color: #000;
+    color: #fff;
+    border-radius: 1.5rem;
+    padding: 1.25rem 1.75rem;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+}
+
+.timer-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.timer-time {
+    font-size: 1.6rem;
+    font-weight: 600;
+}

@@ -1,0 +1,134 @@
+﻿@page
+@model Quran_Memorizing_System.Pages.CreateExamModel
+@{
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/CreateExam.css" asp-append-version="true" />
+}
+
+<div class="row">
+    <!-- Left / main column: exam details + question builder -->
+    <div class="col-lg-8">
+
+        <!-- Exam Details -->
+        <section class="mb-4">
+            <div class="section-title">Exam Details</div>
+            <div class="section-divider"></div>
+
+            <div class="admin-box">
+                <div class="mb-3">
+                    <label class="admin-label" for="examTitle">Title</label>
+                    <input type="text" id="examTitle" class="form-control" placeholder="Enter exam title">
+                </div>
+
+                <div class="mb-3">
+                    <label class="admin-label" for="examDescription">Description</label>
+                    <textarea id="examDescription" class="form-control" rows="3" placeholder="Short description"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="admin-label" for="examDuration">Duration (minutes)</label>
+                        <input type="number" id="examDuration" class="form-control" min="1" value="60">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="admin-label" for="examStart">Start date</label>
+                        <input type="datetime-local" id="examStart" class="form-control">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="admin-label" for="examEnd">End date</label>
+                        <input type="datetime-local" id="examEnd" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Question Builder -->
+        <section class="mb-4">
+            <div class="section-title">Add Question</div>
+            <div class="section-divider"></div>
+
+            <div class="admin-box">
+                <div class="mb-3">
+                    <label class="admin-label" for="questionText">Question text</label>
+                    <textarea id="questionText" class="form-control" rows="3" placeholder="Type the question here"></textarea>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="admin-label" for="questionType">Question type</label>
+                        <select id="questionType" class="form-select">
+                            <option value="single" selected>Multiple choice (single answer)</option>
+                            <option value="text">Free text</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="admin-label" for="questionPoints">Points</label>
+                        <input type="number" id="questionPoints" class="form-control" min="1" value="1">
+                    </div>
+                </div>
+
+                <!-- Choices for multiple‑choice mode -->
+                <div id="choicesWrapper">
+                    <div class="admin-label mb-2">Choices</div>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-auto">
+                            <input class="form-check-input" type="radio" name="correctChoice" checked>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Choice 1">
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-auto">
+                            <input class="form-check-input" type="radio" name="correctChoice">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Choice 2">
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center mb-2">
+                        <div class="col-auto">
+                            <input class="form-check-input" type="radio" name="correctChoice">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Choice 3">
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-secondary btn-sm mt-1">
+                        <i class="bi bi-plus-lg me-1"></i>Add choice
+                    </button>
+                </div>
+
+                <div class="mt-3">
+                    <button type="button" class="btn btn-dark px-4">
+                        Add question to exam
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Right column: list of added questions + summary -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <section>
+            <div class="section-title">Exam Actions</div>
+            <div class="section-divider"></div>
+
+            <div class="admin-box">
+                <button type="button" class="btn btn-secondary w-100 mb-2">
+                    Save as draft
+                </button>
+                <button type="button" class="btn btn-dark w-100">
+                    Publish exam
+                </button>
+            </div>
+        </section>
+    </div>
+</div>
