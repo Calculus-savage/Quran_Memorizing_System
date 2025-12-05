@@ -10,4 +10,3 @@ namespace Quran_Memorizing_System.Pages
         }
     }
 }
-}
