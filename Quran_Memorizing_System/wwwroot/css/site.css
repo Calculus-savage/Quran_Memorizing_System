@@ -55,6 +55,10 @@ body {
     border-radius: 50%; /* or use .rounded-circle in HTML */
 }
 
+.profile-btn::after {
+    display: none !important;
+}
+
 /* Main Content */
 main {
     margin-bottom: 10rem;
