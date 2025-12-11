@@ -55,8 +55,6 @@ namespace Quran_Memorizing_System.Models
                 con.Close();
             }
         }
-
-
         public DataTable FindUser(string email, string password, string type)
         {
             string table = "";
@@ -123,7 +121,6 @@ namespace Quran_Memorizing_System.Models
             }
             return found;
         }
-
         public bool PhoneExists(int phone, string type)
         {
             bool found = true;
@@ -158,7 +155,6 @@ namespace Quran_Memorizing_System.Models
             }
             return found;
         }
-
         public DataTable GetUser(string email, string type)
         {
             string table = "";
@@ -184,7 +180,6 @@ namespace Quran_Memorizing_System.Models
             }
             return res;
         }
-
         public bool DeleteUser(string email, string type)
         {
             bool status = false;
@@ -211,7 +206,6 @@ namespace Quran_Memorizing_System.Models
             }
             return status;
         }
-
         public bool changepassword(string email, string role, string oldpass, string newpass)
         {
             bool status = false;
@@ -251,7 +245,6 @@ namespace Quran_Memorizing_System.Models
             }
             return status;
         }
-
         public bool EditUser(string email, string role, User user)
         {
             bool status = false;
@@ -289,6 +282,75 @@ namespace Quran_Memorizing_System.Models
             }
 
             return status;
+        }
+
+        public void SaveResetToken(string email, string role, string token, DateTime expiry)
+        {
+            string table = (role == "Participant") ? "Participants" : "Sheikhs";
+            string query = $@"UPDATE {table} 
+                     SET ResetToken = @Token, ResetTokenExpiry = @Expiry 
+                     WHERE Email = @Email";
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Email", email.ToLower());
+                cmd.Parameters.AddWithValue("@Token", token);
+                cmd.Parameters.AddWithValue("@Expiry", expiry);
+
+                cmd.ExecuteNonQuery();
+            }
+            catch {}
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public DataTable ValidateResetToken(string role, string token)
+        {
+            string table = (role == "Participant") ? "Participants" : "Sheikhs";
+            string query = $@"SELECT Email FROM {table} 
+                     WHERE ResetToken = @Token 
+                     AND ResetTokenExpiry > GETDATE()";
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Token", token);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return dt;
+        }
+
+        public void ResetPasswordWithToken(string email, string role, string newPassword)
+        {
+            string table = (role == "Participant") ? "Participants" : "Sheikhs";
+            string query = $@"UPDATE {table} 
+                     SET Password = @Password, 
+                         ResetToken = NULL, 
+                         ResetTokenExpiry = NULL 
+                     WHERE Email = @Email";
+
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Email", email.ToLower());
+                cmd.Parameters.AddWithValue("@Password", BCrypt.Net.BCrypt.HashPassword(newPassword));
+                cmd.ExecuteNonQuery();
+            }
+            catch {  } finally { con.Close(); }
         }
     }
 }

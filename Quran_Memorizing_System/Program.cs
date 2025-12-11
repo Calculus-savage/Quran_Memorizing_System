@@ -7,6 +7,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddSingleton<DB>();
 builder.Services.AddSession();
+builder.Services.AddScoped<Quran_Memorizing_System.Services.EmailService>();
 
 var app = builder.Build();
 
