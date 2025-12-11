@@ -16,6 +16,7 @@ namespace Quran_Memorizing_System.Pages
         }
         public void OnGet()
         {
+            
         }
 
         public IActionResult OnPost()
@@ -24,8 +25,19 @@ namespace Quran_Memorizing_System.Pages
             {
                 return Page();
             }
-            
+
+            if (db.PhoneExists(user.PhoneNumber, user.role))
+            {
+                ModelState.AddModelError("user.PhoneNumber", "This Phone is already Taken");
+                return Page();
+            }
+            if (db.EmailExists(user.Email, user.role)) {
+                ModelState.AddModelError("user.Email", "This Email is already Taken");
+                return Page();
+            }
+
             db.AddUser(user);
+            TempData["SuccessMessage"] = "Congratulations! Your account has been created successfully.";
             return RedirectToPage("/Login_Page");
         }
     }

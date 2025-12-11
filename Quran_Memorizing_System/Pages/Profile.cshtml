@@ -1,6 +1,6 @@
 ﻿@page
+@model Quran_Memorizing_System.Pages.ProfileModel
 @{
-    ViewData["Title"] = "My Profile";
 }
 
 @section Styles {
@@ -46,47 +46,55 @@
         }
     </style>
 }
-
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-
-        <div class="profile-wrapper">
-
-            <section class="mb-4">
-                <div class="section-title">My Profile</div>
-                <div class="section-divider"></div>
-
-                <div class="admin-box">
-
-                    <div class="profile-item">
-                        <div class="profile-label">Full Name</div>
-                        <div class="profile-value">Ahmed Hassan</div>
-                    </div>
-
-                    <div class="profile-item">
-                        <div class="profile-label">Email</div>
-                        <div class="profile-value">ahmed@example.com</div>
-                    </div>
-
-                    <div class="profile-item">
-                        <div class="profile-label">Phone</div>
-                        <div class="profile-value">+966 5XXXXXXXX</div>
-                    </div>
-
-                    <div class="profile-item">
-                        <div class="profile-label">Birth Date</div>
-                        <div class="profile-value">15 Jan 1995</div>
-                    </div>
-
-                    <div class="profile-item">
-                        <div class="profile-label">Gender</div>
-                        <div class="profile-value">Male</div>
-                    </div>
-
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </section>
+            }
+
+            <div class="profile-wrapper">
+
+                <section class="mb-4">
+                    <div class="section-title">My Profile</div>
+                    <div class="section-divider"></div>
+
+                    <div class="admin-box">
+
+                        <div class="profile-item">
+                            <div class="profile-label">Full Name</div>
+                            <div class="profile-value">@Model.name</div>
+                        </div>
+
+                        <div class="profile-item">
+                            <div class="profile-label">Email</div>
+                            <div class="profile-value">@Model.email</div>
+                        </div>
+
+                        <div class="profile-item">
+                            <div class="profile-label">Phone</div>
+                            <div class="profile-value">+966 5XXXXXXXX</div>
+                        </div>
+
+                        <div class="profile-item">
+                            <div class="profile-label">Birth Date</div>
+                            <div class="profile-value">15 Jan 1995</div>
+                        </div>
+
+                        <div class="profile-item">
+                            <div class="profile-label">Gender</div>
+                            <div class="profile-value">Male</div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
 
         </div>
-
     </div>
 </div>
