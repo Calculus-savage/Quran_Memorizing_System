@@ -13,8 +13,12 @@ namespace Quran_Memorizing_System.Pages
         public string Schedule { get; set; } = string.Empty;
         public bool isAdmin { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string Name { get; set; }
+
         public void OnGet()
         {
+            Console.WriteLine(Name);
             // sample data
             Posts = new List<Post>
             {

@@ -440,13 +440,159 @@ namespace Quran_Memorizing_System.Models
             }
             catch
             {
-
+                status = false;
             }
             finally
             {
                 con.Close();
             }
             return status;
+        }
+
+        public bool addCircule(string name, bool p, string email)
+        {
+            bool status = true;
+
+            try
+            {
+                con.Open();
+                string query1 = "INSERT INTO Memorization_Circles(Name, Public_Avaliable) VALUES (@cname, @public)";
+                string query2 = "SELECT ID FROM Memorization_Circles WHERE Name = @cname";
+                string query3 = "INSERT INTO Admin_Sheikhs_Circles(Sheikhs_Email, Circle_ID) VALUES (@semail, @cid);"; 
+                SqlCommand cmd1 = new SqlCommand(query1, con);
+                SqlCommand cmd2 = new SqlCommand(query2, con);
+                SqlCommand cmd3 = new SqlCommand(query3, con);
+
+                cmd1.Parameters.AddWithValue("@cname", name);
+                cmd1.Parameters.AddWithValue("@public", p);
+
+                cmd2.Parameters.AddWithValue("@cname", name);
+
+                cmd3.Parameters.AddWithValue("@semail", email);
+
+
+                cmd1.ExecuteNonQuery();
+                int cid = Convert.ToInt32(cmd2.ExecuteScalar());
+                
+                cmd3.Parameters.AddWithValue("@cid", cid);
+                cmd3.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                status = false;
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return status;
+        }
+
+        public bool circuleNameExists(string name)
+        {
+            bool found = false;
+
+            try
+            {
+                con.Open();
+                string query = "SELECT COUNT(*) FROM Memorization_Circles WHERE Name = @name";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@name", name);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                if (count >= 1)
+                {
+                    found = true;
+                }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return found;
+        }
+
+        public DataTable getusercirules(string email, string role)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "";
+                if (role == "Participant")
+                {
+                    query = "SELECT * FROM Memorization_Circles WHERE ID in (SELECT Circle_ID FROM Participant_Circle_Attend WHERE Participant_Email = @email)";
+                }
+                else
+                {
+                    query = "SELECT * FROM Memorization_Circles WHERE ID in (SELECT Circle_ID FROM Admin_Sheikhs_Circles WHERE Sheikhs_Email = @email)";
+                }
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
+
+        public DataTable getallCircles()
+        {
+            DataTable dt = new DataTable();
+
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Memorization_Circles WHERE Public_Avaliable = 1";
+                SqlCommand cmd = new SqlCommand(query, con);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return dt;
+        }
+
+        public DataTable findCircuits(string name)
+        {
+            DataTable dt = new DataTable();
+
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Memorization_Circles WHERE Public_Avaliable = 1 AND Name LIKE @name";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@name", "%" + name + "%");
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return dt;
         }
     }
 }
