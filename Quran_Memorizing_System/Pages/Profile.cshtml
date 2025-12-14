@@ -46,6 +46,7 @@
         }
     </style>
 }
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-6">
@@ -134,11 +135,18 @@
             <div class="d-flex justify-content-around">
                 <a asp-page="/EditProfileDetails" type="submit" class="btn btn-info">Edit Details</a>
                 
-                
+                @if (Model.user.role == "Sheikh" && Model.user.isverified)
+                {                
+                    <a asp-page="/AdmitSheikh" type="submit" class="btn btn-success">Admit Others</a>
+                }
+
+
                 <!-- Delete Account Button -->
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
                     Delete Account
                 </button>
+                
+                
                 <!-- Confirmation Modal with Password -->
                 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">

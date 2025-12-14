@@ -352,5 +352,101 @@ namespace Quran_Memorizing_System.Models
             }
             catch {  } finally { con.Close(); }
         }
+
+        public DataTable getAllUnderReviewSheikhs()
+        {
+            DataTable result = new DataTable();
+
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Sheikhs WHERE isverifed = 0 or isverifed is null";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                result.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return result;
+        }
+
+        public DataTable getUnderReviewShikhs(string emailorname)
+        {
+            DataTable result = new DataTable();
+
+            try
+            {
+                con.Open();
+
+                string query = "SELECT * FROM Sheikhs WHERE (isverifed = 0 or isverifed is null) and (Username LIKE @user OR Email LIKE @user)";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@user", "%" + emailorname + "%");
+
+                result.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return result;
+        }
+
+        public bool admitSheikh(string email)
+        {
+            bool status = true;
+            try
+            {
+                Console.WriteLine(email);
+                con.Open();
+                string query = "UPDATE Sheikhs SET isverifed = 1 WHERE Email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                status = false;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return status;
+        }
+
+        public bool denySheikh(string email)
+        {
+            bool status = true;
+            try
+            {
+                con.Open();
+                string query = "DELETE FROM Sheikhs WHERE Email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return status;
+        }
     }
 }
