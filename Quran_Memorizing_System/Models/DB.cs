@@ -801,5 +801,71 @@ namespace Quran_Memorizing_System.Models
             }
             return status;
         }
+
+        public DataTable getCreatedExams(string email)
+        {
+            DataTable data = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT Exam_ID, Title FROM Exams WHERE Sheikh_email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                data.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return data;
+        }
+
+        public bool deleteExam(int examid)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+
+                string querytemp = "UPDATE Questions SET correctchoice = null WHERE Exam_ID=@id";
+                SqlCommand cmdtemp = new SqlCommand(querytemp, con);
+                cmdtemp.Parameters.AddWithValue("@id", examid);
+                cmdtemp.ExecuteNonQuery();
+
+
+
+                string qury3 = "DELETE FROM Exams WHERE Exam_ID = @id";
+                string qury2 = "DELETE FROM Questions WHERE Exam_ID = @id";
+                string query1 = "DELETE FROM Choices WHERE Q_ID IN (SELECT Q_ID FROM Questions WHERE Exam_ID = @id)";
+
+                SqlCommand cmd1 = new SqlCommand(query1, con);
+                cmd1.Parameters.AddWithValue("@id", examid);
+                cmd1.ExecuteNonQuery();
+
+                SqlCommand cmd2 = new SqlCommand(qury2, con);
+                cmd2.Parameters.AddWithValue("@id", examid);
+                cmd2.ExecuteNonQuery();
+
+                SqlCommand cmd3 = new SqlCommand(qury3, con);
+                cmd3.Parameters.AddWithValue("@id", examid);
+                cmd3.ExecuteNonQuery();
+
+                status = true;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                con.Close();
+            }
+            return status;
+        }
     }
 }
