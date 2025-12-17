@@ -305,7 +305,7 @@ namespace Quran_Memorizing_System.Models
                 con.Close();
             }
         }
-
+        
         public DataTable ValidateResetToken(string role, string token)
         {
             string table = (role == "Participant") ? "Participants" : "Sheikhs";
@@ -331,7 +331,7 @@ namespace Quran_Memorizing_System.Models
 
             return dt;
         }
-
+        
         public void ResetPasswordWithToken(string email, string role, string newPassword)
         {
             string table = (role == "Participant") ? "Participants" : "Sheikhs";
@@ -351,7 +351,7 @@ namespace Quran_Memorizing_System.Models
             }
             catch {  } finally { con.Close(); }
         }
-
+        
         public DataTable getAllUnderReviewSheikhs()
         {
             DataTable result = new DataTable();
@@ -720,6 +720,85 @@ namespace Quran_Memorizing_System.Models
                 con.Close();
             }
 
+            return status;
+        }
+
+        public bool createExam(Exam exam)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+                string query = "INSERT INTO Exams(PublicAvailablity, starttime, endtime, examduration, Sheikh_email, Circle_ID, Title) VALUES (@publicav, @stime, @etime, @examdur, @email, @cid, @title);";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                cmd.Parameters.AddWithValue("@publicav", exam.PublicAvailabilty);
+                cmd.Parameters.AddWithValue("@stime", exam.starttime);
+                cmd.Parameters.AddWithValue("@etime", exam.endtime);
+                cmd.Parameters.AddWithValue("@examdur", exam.examduration);
+                cmd.Parameters.AddWithValue("@email", exam.Sheikh_email);
+                if (exam.Circle_ID != null)
+                {
+                    cmd.Parameters.AddWithValue("@cid", exam.Circle_ID);
+                }
+                else
+                {
+                    _ = cmd.Parameters.AddWithValue("@cid", DBNull.Value);
+                }
+                cmd.Parameters.AddWithValue("@title", exam.Title);
+                cmd.ExecuteNonQuery();
+
+                int examid = 0;
+                string temp = "SELECT Exam_ID FROM Exams WHERE Title = @title";
+                SqlCommand cmdtemp = new SqlCommand(temp, con);
+                cmdtemp.Parameters.AddWithValue("@title", exam.Title);
+                examid = (int)cmdtemp.ExecuteScalar();
+
+                foreach (var question in exam.Questions)
+                {
+                    string query1 = "INSERT INTO Questions(Title, Exam_ID, QType) VALUES (@Title, @Exam_ID, @QType)";
+                    SqlCommand cmd1 = new SqlCommand(query1, con);
+                    
+                    cmd1.Parameters.AddWithValue("@Title", question.Title);
+                    cmd1.Parameters.AddWithValue("@Exam_ID", examid);
+                    cmd1.Parameters.AddWithValue("@QType", question.Type);
+                    cmd1.ExecuteNonQuery();
+
+                    int questionid = 0;
+                    string temp2 = "SELECT Q_ID FROM Questions WHERE Title = @title";
+                    SqlCommand cmdtemp2 = new SqlCommand(temp2, con);
+                    cmdtemp2.Parameters.AddWithValue("@title", question.Title);
+                    questionid = (int)cmdtemp2.ExecuteScalar();
+
+                    foreach (var choice in question.Choices)
+                    {
+                        string query2 = "INSERT INTO Choices (Choice, Q_ID) VALUES (@ch, @qid)";
+                        SqlCommand cmd2 = new SqlCommand(query2, con);
+                        cmd2.Parameters.AddWithValue("@ch", choice.Text);
+                        cmd2.Parameters.AddWithValue("@qid", questionid);
+                        cmd2.ExecuteNonQuery();
+                    }
+
+                    string finalquery = "UPDATE Questions SET correctchoice = @corect WHERE Q_ID = @id";
+                    SqlCommand finalcmd = new SqlCommand(finalquery, con);
+                    finalcmd.Parameters.AddWithValue("@corect", question.CorrectAnswerText);
+                    Console.WriteLine(question.CorrectAnswerText);
+                    finalcmd.Parameters.AddWithValue("@id", questionid);
+                    finalcmd.ExecuteNonQuery();
+                }
+
+
+                status = true;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(ex);
+                status = false;
+            }
+            finally
+            {
+                con.Close();
+            }
             return status;
         }
     }
