@@ -1,0 +1,33 @@
+﻿@page
+@model Quran_Memorizing_System.Pages.ViewLessonModel
+@{
+}
+
+@section Styles {
+        <link rel="stylesheet" href="~/css/lessons.css" asp-append-version="true" />
+}
+
+<div class="container pt-4">
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold">View Lesson</h4>
+        <a asp-page="/LessonsSearch" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+
+    <div class="lesson-card p-4 border rounded">
+        <div class="mb-2">
+            <span class="fw-semibold">Instructor: </span>
+            <span>@Model.Lesson.Instructor</span>
+        </div>
+        <div class="mb-2">
+            <span class="fw-semibold">Title: </span>
+            <span>@Model.Lesson.Title</span>
+        </div>
+        <div class="mb-2">
+            <span class="fw-semibold">Tags: </span>
+            <span>@string.Join(", ", Model.Lesson.Tags)</span>
+        </div>
+    </div>
+</div>
