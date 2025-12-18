@@ -79,6 +79,14 @@ namespace Quran_Memorizing_System.Pages
         {
             setuser();
             Circles = db.getusercirules(user.Email, user.role);
+            if (user.role == "Admin")
+            {
+                isAdmin = true;
+            }
+            else
+            {
+                isAdmin = false;
+            }
         }
 
         public IActionResult OnPostAddcircule()
@@ -104,5 +112,6 @@ namespace Quran_Memorizing_System.Pages
             }
             return RedirectToPage("/Home");
         }
+
     }
 }
