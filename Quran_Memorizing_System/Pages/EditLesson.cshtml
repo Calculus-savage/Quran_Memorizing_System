@@ -7,36 +7,70 @@
         <link rel="stylesheet" href="~/css/lessons.css" asp-append-version="true" />
 }
 
-<div class="container pt-4">
-
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <h4 class="fw-bold">Edit Lesson</h4>
-        <a asp-page="/LessonsSearch" class="btn btn-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Back
-        </a>
+<div class="container pt-3">
+    <div class="header mb-4">
+        <h2>Edit Lesson</h2>
     </div>
 
-    <form method="post" class="lessons-form">
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Instructor</label>
-            <input asp-for="Instructor" class="form-control" placeholder="Enter instructor name" />
-        </div>
+    <div class="lesson-card edit-card mx-auto">
+        <form method="post">
+            <input type="hidden" name="lessonId" value="@Model.Lesson_ID" />
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Lesson Title</label>
-            <input asp-for="Title" class="form-control" placeholder="Enter lesson title" />
-        </div>
+            <div class="lesson-details mb-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Title</label>
+                    <input type="text" name="Title" value="@Model.Title" class="form-control" required />
+                </div>
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold">Tags</label>
-            <input asp-for="TagsString" class="form-control" placeholder="Enter tags separated by commas" />
-            <small class="text-muted">Example: Tag1, Tag2</small>
-        </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Location</label>
+                    <input type="text" name="Location" value="@Model.Location" class="form-control" required />
+                </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-warning text-white px-4">
-                <i class="bi bi-pencil me-1"></i> Update Lesson
-            </button>
-        </div>
-    </form>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Availability</label>
+                    <input type="text" name="Availability" value="@Model.Availability" class="form-control" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Lesson URL</label>
+                    <input type="url" name="lesson_url" value="@Model.LessonUrl" class="form-control" required />
+                </div>
+            </div>
+
+            <div class="lesson-actions d-flex justify-content-end">
+                <button type="submit" class="btn btn-warning me-2">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+                <a href="/LessonsSearch" class="btn btn-dark">
+                    <i class="bi bi-x-circle me-1"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+@* <div class="container pt-4">
+    <h3>Edit Lesson</h3>
+
+    <form method="post" class="mt-4">
+        <div class="mb-3">
+            <label class="form-label">Lesson ID</label>
+            <input asp-for="Lesson_ID" class="form-control" readonly />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <input asp-for="Location" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Availability</label>
+            <input asp-for="Availability" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary px-4">Update Lesson</button>
+        <a href="/LessonsSearch" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div> *@
