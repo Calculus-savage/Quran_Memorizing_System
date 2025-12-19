@@ -901,6 +901,18 @@ namespace Quran_Memorizing_System.Models
             try
             {
                 con.Open();
+
+                string query1 = "SELECT * FROM Exam_Submissions WHERE Exam_ID = @examid and Participant_Email = @email and Submited = 0";
+                DataTable dt = new DataTable();
+                SqlCommand cmd1 = new SqlCommand(query1, con);
+                cmd1.Parameters.AddWithValue("@email", email);
+                cmd1.Parameters.AddWithValue("@examid", examid);
+                dt.Load(cmd1.ExecuteReader());
+                if (dt.Rows.Count > 0)
+                {
+                    return (int)dt.Rows[0]["Exam_Sub_ID"];
+                }
+
                 string query = "INSERT INTO Exam_Submissions (Exam_ID, Participant_Email, Submited) VALUES (@examid, @email, 0)";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@examid", examid);
@@ -977,20 +989,29 @@ namespace Quran_Memorizing_System.Models
             try
             {
                 con.Open();
+
+                string query2 = "UPDATE Exam_Submissions SET EndDate = @date, Submited = 1 WHERE Exam_Sub_ID = @subid";
+                SqlCommand cmd2 = new SqlCommand(query2, con);
+                cmd2.Parameters.AddWithValue("@date", DateTime.Now);
+                cmd2.Parameters.AddWithValue("@subid", subid);
+                cmd2.ExecuteNonQuery();
+
                 foreach (Question question in questions) 
                 {
-                    string query = "INSERT INTO QuestionSubmition(Exam_Sub_ID, Question_ID, Answer) Values (@subid, @questionid, @answer)";
+                    if (string.IsNullOrEmpty(question.CorrectAnswerText)) { continue; }
 
                     string querytemp = "SELECT Q_ID from Questions where Title = @title";
                     SqlCommand cmdtemp = new SqlCommand(querytemp, con);
                     cmdtemp.Parameters.AddWithValue("@title", question.Title);
                     int qid = (int)cmdtemp.ExecuteScalar();
 
+                    string query = "INSERT INTO QuestionSubmition(Exam_Sub_ID, Question_ID, Answer) Values (@subid, @questionid, @answer)";
                     SqlCommand cmd = new SqlCommand(query, con);
                     cmd.Parameters.AddWithValue("@subid", subid);
                     cmd.Parameters.AddWithValue("@questionid", qid);
                     cmd.Parameters.AddWithValue("@answer", question.CorrectAnswerText);
                     cmd.ExecuteNonQuery();
+
                 }
                 status = true;
             }
@@ -1005,7 +1026,6 @@ namespace Quran_Memorizing_System.Models
 
             return status;
         }
-
 
         public bool Examnameexists(string examname)
         {
@@ -1032,6 +1052,31 @@ namespace Quran_Memorizing_System.Models
                 con.Close();
             }
             return status;
+        }
+
+        public int getavaliabletimeexam(int exam_sub_id)
+        {
+            int timeleft = 0;
+            try
+            {
+                con.Open();
+                DataTable dt = new DataTable();
+                string query = "SELECT * FROM Exam_Submissions WHERE Exam_Sub_ID = @id and Submited = 0";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", exam_sub_id);
+                dt.Load(cmd.ExecuteReader());
+                DateTime d = Convert.ToDateTime(dt.Rows[0]["StartDate"]);
+                timeleft = Convert.ToInt32((DateTime.Now - d).TotalMinutes);
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return timeleft;
         }
     }
 }
