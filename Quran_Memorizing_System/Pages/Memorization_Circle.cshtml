@@ -3,53 +3,18 @@
 @{
     @using System.Data
 }
-
-<div class="container mt-4">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div>
-            @TempData["SuccessMessage"]
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div>
-            @TempData["ErrorMessage"]
-        </div>
-    }
-    <div class="row">
-
-        <!-- LEFT SIDE -->
-        <div class="col-md-8">
-
-            <!-- Share box -->
-            <div class="d-flex align-items-center border rounded-4 p-3 mb-4">
-                <input type="text" class="form-control me-3" placeholder="Share Some Information" />
-                <button class="btn btn-dark px-4">Share</button>
-            </div>
-
-            <!-- POSTS -->
-            @foreach (DataRow p in Model.Posts.Rows)
-            {
-                <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="rounded-circle bg-secondary me-2" style="width:40px; height:40px;"></div>
-                        <strong>@p["Sh_Email"]</strong>
-                    </div>
-                    <p class="mb-0">@p["Description"]</p>
-                </div>
-            }
-
-        </div>
-
+@if (Model.role == "Sheikh")
+{
+    <!-- Circle settings -->
+    <div class="mb-3">
+        <h5 class="fw-bold">Circle Settings</h5>
         <!-- RIGHT SIDE -->
         <div class="col-md-4">
             @if (Model.role == "Sheikh")
-            {                
+            {
                 <!-- MEMBERS -->
                 <h5 class="fw-bold mb-2">MEMBERS</h5>
-                
+
 
                 <!-- Add members-->
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#AddMemberModal">ADD</button>
@@ -69,10 +34,10 @@
                         </div>
                     </div>
                 </div>
-                
-                
-                
-                <hr class="mt-0"/>
+
+
+
+                <hr class="mt-0" />
 
                 @foreach (DataRow m in Model.Members.Rows)
                 {
@@ -98,16 +63,6 @@
                 }
             }
         </div>
-
-    </div>
-</div>
-
-@if (Model.role == "Sheikh")
-{
-    <!-- Circle settings -->
-    <div class="mb-3">
-        <h5 class="fw-bold">Circle Settings</h5>
-
         <!-- Edit Circle -->
         <form method="post" asp-page-handler="UpdateCircle" class="mb-2">
             <div class="mb-2">
@@ -141,9 +96,9 @@
             <button type="submit" class="btn btn-dark px-4">Share</button>
         </form>
     </div>
-    
+
     <!--  edit or delete announcement -->
-    @for (int i=0;i<Model.Posts.Rows.Count;i++)
+    @for (int i = 0; i < Model.Posts.Rows.Count; i++)
     {
         <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
             <div class="d-flex align-items-center mb-2">
@@ -159,7 +114,7 @@
                 <!-- This would allow Sheikhs to edit announcments even if they weren't the one's who made them -->
                 <form method="post" asp-page-handler="EditAnnouncement" class="mb-2">
                     <input type="hidden" asp-for="EditAnnouncementId" value="@Model.Posts.Rows[i][4]" />
-                    
+
                     <!-- The value in between the tages gets overriden by the asp-for -->
                     <!--This is not a solution since the data is not bind to the backend-->
                     <textarea asp-for="@Model.Posts.Rows[i][0]" class="form-control mb-2"></textarea>
@@ -187,9 +142,55 @@
 
 
 
-<!--Shouldn't this be with the other view of the posts-->
+@*<div class="container mt-4">
+
+    <div class="row">
+
+        <!-- LEFT SIDE -->
+        <div class="col-md-8">
+
+            <!-- Share box -->
+            <div class="d-flex align-items-center border rounded-4 p-3 mb-4">
+                <input type="text" class="form-control me-3" placeholder="Share Some Information" />
+                <button class="btn btn-dark px-4">Share</button>
+            </div>
+
+            <!-- POSTS -->
+            @foreach (DataRow p in Model.Posts.Rows)
+            {
+                <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="rounded-circle bg-secondary me-2" style="width:40px; height:40px;"></div>
+                        <strong>@p["Sh_Email"]</strong>
+                    </div>
+                    <p class="mb-0">@p["Description"]</p>
+                </div>
+            }
+
+        </div>
+
+      
+
+    </div>
+</div>*@
+
+
+
 @foreach (DataRow p in Model.Posts.Rows)
 {
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div>
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div>
+            @TempData["ErrorMessage"]
+        </div>
+    }
     <!--Same thing with the column name -->
     var annId = (int)p[4];
 
@@ -253,7 +254,6 @@
                         }
                         else
                         {
-                            <!--Name Mismatch-->
                             <span>@c["text"]</span>
                         }
                     </div>
