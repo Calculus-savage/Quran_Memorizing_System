@@ -12,7 +12,7 @@ namespace Quran_Memorizing_System.Models
 
         public DB()
         {
-            connectionstring = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
+            connectionstring = "Data Source=BeSsO_2008;Initial Catalog=MemorizationSystem2;Integrated Security=True;";
             con = new SqlConnection(connectionstring);
         }
 

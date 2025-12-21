@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Data.SqlClient;
+using Quran_Memorizing_System.Models;
+using System.Data;
+using System.Data.SqlClient;
 
 
 namespace Quran_Memorizing_System.Pages
@@ -9,9 +11,37 @@ namespace Quran_Memorizing_System.Pages
     {
         private readonly IConfiguration _configuration;
 
-        public Add_LessonModel(IConfiguration configuration)
+        public User user { get; set; }
+        DB db;
+
+        public Add_LessonModel(IConfiguration configuration, DB dB)
         {
+            user = new User();
+            db = dB;
             _configuration = configuration;
+        }
+
+        void getuser()
+        {
+            var role = HttpContext.Session.GetString("role");
+            var email = HttpContext.Session.GetString("email");
+            if (email == null)
+            {
+                return;
+            }
+            DataTable userdt = db.GetUser(email, role);
+
+            user.UserName = Convert.ToString(userdt.Rows[0]["UserName"]);
+            user.PhoneNumber = Convert.ToInt32(userdt.Rows[0]["Phone"]);
+            user.Email = email;
+            user.gender = Convert.ToString(userdt.Rows[0]["Gender"]);
+            user.role = role;
+            user.PhoneVisability = Convert.ToBoolean(userdt.Rows[0]["Phonevisability"]);
+            user.DateOfBirth = Convert.ToDateTime(userdt.Rows[0]["DateofBirth"]).ToShortDateString();
+            if (role == "Sheikh")
+            {
+                user.isverified = Convert.ToBoolean(userdt.Rows[0]["isverifed"]);
+            }
         }
 
         [BindProperty]
@@ -28,19 +58,27 @@ namespace Quran_Memorizing_System.Pages
 
         public IActionResult OnGet()
         {
-            if (!(User.Identity.IsAuthenticated || User.IsInRole("Sheikh")))
+            getuser();
+            if (!user.isverified)
+            {
+                TempData["ErrorMessage"] = "You are not allowed to add a lesson";
                 return RedirectToPage("/LessonsSearch");
+            }
 
             return Page();
         }
 
         public IActionResult OnPost()
         {
-            if (!(User.Identity.IsAuthenticated || User.IsInRole("Sheikh")))
+            getuser();
+            if (!user.isverified)
+            {
+                TempData["ErrorMessage"] = "You are not allowed to add a lesson";
                 return RedirectToPage("/LessonsSearch");
+            }
 
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
-            string instructorEmail = User.Identity.Name;
+            string instructorEmail = user.Email;
 
             using SqlConnection con = new SqlConnection(connectionString);
             using SqlCommand cmd = new SqlCommand(
