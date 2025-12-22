@@ -3,53 +3,18 @@
 @{
     @using System.Data
 }
-
-<div class="container mt-4">
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div>
-            @TempData["SuccessMessage"]
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div>
-            @TempData["ErrorMessage"]
-        </div>
-    }
-    <div class="row">
-
-        <!-- LEFT SIDE -->
-        <div class="col-md-8">
-
-            <!-- Share box -->
-            <div class="d-flex align-items-center border rounded-4 p-3 mb-4">
-                <input type="text" class="form-control me-3" placeholder="Share Some Information" />
-                <button class="btn btn-dark px-4">Share</button>
-            </div>
-
-            <!-- POSTS -->
-            @foreach (DataRow p in Model.Posts.Rows)
-            {
-                <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="rounded-circle bg-secondary me-2" style="width:40px; height:40px;"></div>
-                        <strong>@p["Sh_Email"]</strong>
-                    </div>
-                    <p class="mb-0">@p["Description"]</p>
-                </div>
-            }
-
-        </div>
-
+@if (Model.role == "Sheikh")
+{
+    <!-- Circle settings -->
+    <div class="mb-3">
+        <h5 class="fw-bold">Circle Settings</h5>
         <!-- RIGHT SIDE -->
         <div class="col-md-4">
             @if (Model.role == "Sheikh")
-            {                
+            {
                 <!-- MEMBERS -->
                 <h5 class="fw-bold mb-2">MEMBERS</h5>
-                
+
 
                 <!-- Add members-->
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#AddMemberModal">ADD</button>
@@ -69,10 +34,10 @@
                         </div>
                     </div>
                 </div>
-                
-                
-                
-                <hr class="mt-0"/>
+
+
+
+                <hr class="mt-0" />
 
                 @foreach (DataRow m in Model.Members.Rows)
                 {
@@ -98,15 +63,6 @@
                 }
             }
         </div>
-
-    </div>
-</div>
-@if (Model.role == "Sheikh")
-{
-    <!-- Circle settings -->
-    <div class="mb-3">
-        <h5 class="fw-bold">Circle Settings</h5>
-
         <!-- Edit Circle -->
         <form method="post" asp-page-handler="UpdateCircle" class="mb-2">
             <div class="mb-2">
@@ -128,6 +84,8 @@
             <button type="submit" class="btn btn-danger btn-sm">Delete Circle</button>
         </form>
     </div>
+
+
     <!--  make announcement -->
     <div class="d-flex align-items-center border rounded-4 p-3 mb-4">
         <form method="post" asp-page-handler="AddAnnouncement" class="d-flex w-100">
@@ -138,46 +96,71 @@
             <button type="submit" class="btn btn-dark px-4">Share</button>
         </form>
     </div>
+
     <!--  edit or delete announcement -->
-    @foreach (DataRow p in Model.Posts.Rows)
+    @for (int i = 0; i < Model.Posts.Rows.Count; i++)
     {
         <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
             <div class="d-flex align-items-center mb-2">
                 <div class="rounded-circle bg-secondary me-2" style="width:40px; height:40px;"></div>
-                <strong>@p["Sh_Email"]</strong>
+                <strong>@Model.Posts.Rows[i]["Sh_Email"]</strong>
             </div>
 
+           
             @if (Model.role == "Sheikh")
             {
                 <!--  Edit -->
+                <!-- This would allow Sheikhs to edit announcments even if they weren't the one's who made them -->
+                
+
                 <form method="post" asp-page-handler="EditAnnouncement" class="mb-2">
-                    <input type="hidden" asp-for="EditAnnouncementId" value="@p["Id"]" />
-                    <textarea asp-for="EditAnnouncementText" class="form-control mb-2">@p["Description"]</textarea>
+                    <input type="hidden" name="EditAnnouncementId" value="@Model.Posts.Rows[i]["Announcment_ID"]" />
+                    <textarea class="form-control mb-2" name="EditAnnouncementText">@Model.Posts.Rows[i]["Description"]</textarea>
                     <input asp-for="Name" type="hidden" />
                     <button type="submit" class="btn btn-primary btn-sm">Save</button>
                 </form>
 
+
                 <!--  Delete -->
                 <form method="post" asp-page-handler="DeleteAnnouncement"
                       onsubmit="return confirm('Delete this announcement?');">
-                    <input type="hidden" name="id" value="@p["Id"]" />
+                    <input type="hidden" name="DeleteAnnouncementId" value="@(Model.Posts.Rows[i]["Announcment_ID"])" />
                     <input asp-for="Name" type="hidden" />
                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                 </form>
             }
             else
             {
-                <p class="mb-0">@p["Description"]</p>
+                <p class="mb-0">@Model.Posts.Rows[i][0]</p>
             }
+
         </div>
     }
 
 }
 
+
+
+
+@if (Model.role == "Participant"){
+
 @foreach (DataRow p in Model.Posts.Rows)
 {
-    var annId = (int)p["Id"];
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div>
+            @TempData["SuccessMessage"]
+        </div>
+    }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div>
+            @TempData["ErrorMessage"]
+        </div>
+    }
+    <!--Same thing with the column name -->
+    var annId = (int)p["Announcment_ID"];
     <div class="p-4 mb-4 bg-light rounded-4" style="background-color:#e8f0fa !important;">
         <div class="d-flex align-items-center mb-2">
             <div class="rounded-circle bg-secondary me-2" style="width:40px; height:40px;"></div>
@@ -208,43 +191,48 @@
                 }
             }
 
-            @* Show comments *@
-            @if (comments != null)
-            {
-                @foreach (DataRow c in comments.Rows)
+                @* Show comments *@
+                @if (comments != null)
                 {
-                    <div class="mb-2">
-                        <small class="text-muted">@c["Participant_Email"]</small><br />
+                    @foreach (DataRow c in comments.Rows)
+                    {
+                        var cEmail = Convert.ToString(c["participant_email"]);
+                        var cTime = Convert.ToDateTime(c["time"]);
+                        var cAnnId = annId;
 
-                        @if (Model.role == "Participant"
-                                    && Convert.ToString(c["Participant_Email"]) == HttpContext.Session.GetString("email"))
-                        {
-                            <!-- Edit comment -->
-                            <form method="post" asp-page-handler="EditComment" class="d-flex mb-1">
-                                <input type="hidden" asp-for="EditCommentId" value="@c["Id"]" />
-                                <input asp-for="EditCommentText" class="form-control me-2" value="@c["Comment_Text"]" />
-                                <input asp-for="Name" type="hidden" />
-                                <button type="submit" class="btn btn-primary btn-sm">Save</button>
-                            </form>
+                        <div class="mb-2">
+                            <small class="text-muted">@cEmail</small><br />
 
-                            <!-- Delete comment -->
-                            <form method="post" asp-page-handler="DeleteComment"
-                                  onsubmit="return confirm('Delete this comment?');">
-                                <input type="hidden" name="id" value="@c["Id"]" />
-                                <input asp-for="Name" type="hidden" />
-                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <span>@c["Comment_Text"]</span>
-                        }
-                    </div>
+                            @if (Model.role == "Participant"
+                                        && cEmail.ToLower() == HttpContext.Session.GetString("email")?.ToLower())
+                            {
+                                <!-- Edit comment -->
+                                <form method="post" asp-page-handler="EditComment" class="d-flex mb-1">
+                                    <input type="hidden" asp-for="EditCommentId" value="@cAnnId" />
+                                    <input asp-for="EditCommentText" class="form-control me-2" value="@c["text"]" />
+                                    <input asp-for="Name" type="hidden" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                                </form>
+
+                                <!-- Delete one comment  -->
+                                <form method="post" asp-page-handler="DeleteComment"
+                                      onsubmit="return confirm('Delete this comment?');">
+                                    <input type="hidden" name="announcementId" value="@cAnnId" />
+                                    <input type="hidden" name="participantEmail" value="@cEmail" />
+                                    <input type="hidden" name="time" value="@cTime.ToString("o")" />
+                                    <input asp-for="Name" type="hidden" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span>@c["text"]</span>
+                            }
+                        </div>
+                    }
                 }
-            }
+
         </div>
     </div>
 }
-
-
-
+}

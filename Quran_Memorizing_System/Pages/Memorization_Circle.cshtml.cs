@@ -26,6 +26,9 @@ namespace Quran_Memorizing_System.Pages
         public int EditAnnouncementId { get; set; }
 
         [BindProperty]
+        public int DeleteAnnouncementId { get; set; }
+
+        [BindProperty]
         public string EditAnnouncementText { get; set; }
         [BindProperty]
         public int NewCommentAnnouncementId { get; set; }
@@ -38,7 +41,7 @@ namespace Quran_Memorizing_System.Pages
 
         [BindProperty]
         public string EditCommentText { get; set; }
-
+        
 
         DB db;
         [BindProperty]
@@ -71,7 +74,8 @@ namespace Quran_Memorizing_System.Pages
             CommentsByAnnouncement = new Dictionary<int, DataTable>();
             foreach (DataRow p in Posts.Rows)
             {
-                int annId = Convert.ToInt32(p["Id"]);
+                // There is no ID in the DB
+                int annId = Convert.ToInt32(p["Announcment_ID"]);
                 CommentsByAnnouncement[annId] = db.GetCommentsForAnnouncement(annId);
             }
 
@@ -155,7 +159,8 @@ namespace Quran_Memorizing_System.Pages
         //  Add Announcement
         public IActionResult OnPostAddAnnouncement()
         {
-            if (role != "Sheikh")
+            // Take care you relay on role which is empty by the time this is called
+            if (HttpContext.Session.GetString("role") != "Sheikh")
             {
                 TempData["ErrorMessage"] = "You are not allowed to post.";
                 return RedirectToPage("/Memorization_Circle", new { Name = Name });
@@ -176,8 +181,8 @@ namespace Quran_Memorizing_System.Pages
             return RedirectToPage("/Memorization_Circle", new { Name = Name });
         }
 
-    
-  
+
+
         // Edit
         public IActionResult OnPostEditAnnouncement()
         {
@@ -187,7 +192,20 @@ namespace Quran_Memorizing_System.Pages
                 return RedirectToPage("/Memorization_Circle", new { Name = Name });
             }
 
-            if (db.UpdateAnnouncement(EditAnnouncementId, EditAnnouncementText))
+            // Authorization: allow if current user is Sheikh or the owner of announcement
+            var sessionEmail = HttpContext.Session.GetString("email");
+            var sessionRole = HttpContext.Session.GetString("role");
+
+            var owner = db.GetAnnouncementOwner(EditAnnouncementId);
+            if (sessionRole != "Sheikh" && (owner == null || sessionEmail == null || !string.Equals(owner, sessionEmail, StringComparison.OrdinalIgnoreCase)))
+            {
+                TempData["ErrorMessage"] = "You are not allowed to edit this announcement.";
+                return RedirectToPage("/Memorization_Circle", new { Name = Name });
+            }
+
+            bool updated = db.UpdateAnnouncement(EditAnnouncementId, EditAnnouncementText);
+
+            if (updated)
                 TempData["SuccessMessage"] = "Announcement updated successfully.";
             else
                 TempData["ErrorMessage"] = "Error while updating announcement.";
@@ -195,9 +213,23 @@ namespace Quran_Memorizing_System.Pages
             return RedirectToPage("/Memorization_Circle", new { Name = Name });
         }
 
+
         // Delete
-        public IActionResult OnPostDeleteAnnouncement(int id)
+        public IActionResult OnPostDeleteAnnouncement()
         {
+            int id = DeleteAnnouncementId;
+
+            // Authorization: allow if current user is Sheikh or the owner of announcement
+            var sessionEmail = HttpContext.Session.GetString("email");
+            var sessionRole = HttpContext.Session.GetString("role");
+
+            var owner = db.GetAnnouncementOwner(id);
+            if (sessionRole != "Sheikh" && (owner == null || sessionEmail == null || !string.Equals(owner, sessionEmail, StringComparison.OrdinalIgnoreCase)))
+            {
+                TempData["ErrorMessage"] = "You are not allowed to delete this announcement.";
+                return RedirectToPage("/Memorization_Circle", new { Name = Name });
+            }
+
             if (db.DeleteAnnouncement(id))
                 TempData["SuccessMessage"] = "Announcement deleted successfully.";
             else
@@ -240,16 +272,23 @@ namespace Quran_Memorizing_System.Pages
             return RedirectToPage("/Memorization_Circle", new { Name = Name });
         }
 
-        public IActionResult OnPostDeleteComment(int id)
-        {
-            string email = HttpContext.Session.GetString("email");
-            if (db.DeleteComment(id, email))
-                TempData["SuccessMessage"] = "Comment deleted.";
-            else
-                TempData["ErrorMessage"] = "Error deleting comment.";
+       public IActionResult OnPostDeleteComment(int announcementId, string participantEmail, DateTime time)
+{
+    var sessionEmail = HttpContext.Session.GetString("email");
+    if (sessionEmail == null || sessionEmail.ToLower() != participantEmail.ToLower())
+    {
+        TempData["ErrorMessage"] = "You cannot delete this comment.";
+        return RedirectToPage("/Memorization_Circle", new { Name = Name });
+    }
 
-            return RedirectToPage("/Memorization_Circle", new { Name = Name });
-        }
+    if (db.DeleteComment(announcementId, participantEmail, time))
+        TempData["SuccessMessage"] = "Comment deleted.";
+    else
+        TempData["ErrorMessage"] = "Error deleting comment.";
+
+    return RedirectToPage("/Memorization_Circle", new { Name = Name });
+}
+
 
 
 
