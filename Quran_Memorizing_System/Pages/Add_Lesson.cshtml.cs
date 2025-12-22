@@ -77,7 +77,7 @@ namespace Quran_Memorizing_System.Pages
                 return RedirectToPage("/LessonsSearch");
             }
 
-            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+            string connectionString = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
             string instructorEmail = user.Email;
 
             using SqlConnection con = new SqlConnection(connectionString);

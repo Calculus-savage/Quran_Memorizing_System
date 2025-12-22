@@ -1100,5 +1100,114 @@ namespace Quran_Memorizing_System.Models
             }
             return dt;
         }
+
+
+        public void requestsession(string email, string date, int spage, int epage)
+        {
+            try
+            {
+                con.Open();
+                string query = "INSERT INTO Sessions (participant_email, session_date, start_page, end_page) values (@pemail, @date, @spage, @epage)";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@pemail", email);
+                cmd.Parameters.AddWithValue("@date", date);
+                cmd.Parameters.AddWithValue("@spage", spage);
+                cmd.Parameters.AddWithValue("@epage", epage);
+
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public DataTable getallsessions()
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Sessions WHERE sheikh_email is null";
+                SqlCommand cmd = new SqlCommand(query, con);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
+
+        public void Acceptrequest(string email, int sid)
+        {
+            try
+            {
+                con.Open();
+                string query = "UPDATE Sessions SET sheikh_email = @email, status = 'Done' WHERE Session_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                cmd.Parameters.AddWithValue("@id", sid);
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public void Denyrequest(int sid)
+        {
+            try
+            {
+                con.Open();
+                string query = "Delete Sessions WHERE Session_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", sid);
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public DataTable getsessionsrequestedbyuser(string email)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Sessions WHERE participant_email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
     }
 }
