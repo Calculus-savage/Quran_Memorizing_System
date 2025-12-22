@@ -723,6 +723,117 @@ namespace Quran_Memorizing_System.Models
 
             return status;
         }
+        //for abdate circle 
+        public bool UpdateCircle(string oldName, string newName, bool isPublic)
+        {
+          bool status = false;
+          try
+          {
+            con.Open();
+            string query = "UPDATE Memorization_Circles SET Name = @newName, Public_Avaliable = @public WHERE Name = @oldName";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@newName", newName);
+                cmd.Parameters.AddWithValue("@public", isPublic);
+                cmd.Parameters.AddWithValue("@oldName", oldName);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
+        //for delete circle
+        public bool DeleteCircle(string name)
+        {
+          bool status = false;
+          try
+          {
+            con.Open();
+            /*You can't just delete the circle you must delte all the posts and comments and shiecks_links and participant_links asosiated with it*/
+
+                string query = "DELETE FROM Memorization_Circles WHERE Name = @name";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
+
+        public bool AddAnnouncementToCircle(string circleName, string sheikhEmail, string description)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+
+                string getIdQuery = "SELECT ID FROM Memorization_Circles WHERE Name = @cname";
+                SqlCommand cmdGetId = new SqlCommand(getIdQuery, con);
+                cmdGetId.Parameters.AddWithValue("@cname", circleName);
+                object res = cmdGetId.ExecuteScalar();
+                if (res == null) return false;
+                int cid = Convert.ToInt32(res);
+
+                string insertQuery = @"INSERT INTO Announcment
+                               (Circle_ID, Sh_Email, Description, Time) 
+                               VALUES (@cid, @email, @desc, GETDATE())";
+                SqlCommand cmdInsert = new SqlCommand(insertQuery, con);
+                cmdInsert.Parameters.AddWithValue("@cid", cid);
+                cmdInsert.Parameters.AddWithValue("@email", sheikhEmail.ToLower());
+                cmdInsert.Parameters.AddWithValue("@desc", description);
+
+                cmdInsert.ExecuteNonQuery();
+                status = true;
+            }
+            catch
+            {
+                status = false;
+            }
+            finally
+            {
+                con.Close();
+            }
+          return status;
+        }
+      
+        public bool UpdateAnnouncement(int id, string description)
+        {
+            bool status = false;
+
+            // تحقق من وجود بيانات صالحة
+            if (id <= 0 || string.IsNullOrWhiteSpace(description))
+                return false;
+            try
+            {
+                con.Open();
+              string query = "UPDATE Announcment SET Description = @desc WHERE Announcment_ID = @id";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.Add("@desc", SqlDbType.NVarChar, 500).Value = description;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = id;
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    status = rowsAffected > 0; 
+                }
+            }
+            catch (Exception ex)
+            {
+               
+                Console.WriteLine("Error updating announcement: " + ex.Message);
+                status = false;
+             }
+            finally
+            {
+                con.Close();
+            }
+
+            return status;
+        }
+        ////////////////////
+            
 
         public bool createExam(Exam exam)
         {
@@ -834,7 +945,6 @@ namespace Quran_Memorizing_System.Models
             try
             {
                 con.Open();
-
                 string querytemp = "UPDATE Questions SET correctchoice = null WHERE Exam_ID=@id";
                 SqlCommand cmdtemp = new SqlCommand(querytemp, con);
                 cmdtemp.Parameters.AddWithValue("@id", examid);
@@ -927,13 +1037,11 @@ namespace Quran_Memorizing_System.Models
             }
             catch
             {
-
             }
             finally
             {
                 con.Close();
             }
-
             return exam_sub_id;
         }
 
@@ -985,11 +1093,9 @@ namespace Quran_Memorizing_System.Models
         public bool submitExam(string email, List<Question> questions, int subid)
         {
             bool status = false;
-
             try
             {
                 con.Open();
-
                 string query2 = "UPDATE Exam_Submissions SET EndDate = @date, Submited = 1 WHERE Exam_Sub_ID = @subid";
                 SqlCommand cmd2 = new SqlCommand(query2, con);
                 cmd2.Parameters.AddWithValue("@date", DateTime.Now);
@@ -1017,7 +1123,6 @@ namespace Quran_Memorizing_System.Models
             }
             catch
             {
-
             }
             finally
             {
@@ -1027,6 +1132,123 @@ namespace Quran_Memorizing_System.Models
             return status;
         }
 
+        public bool DeleteAnnouncement(int id)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+                // MisMatch Name [Done]
+                // Take care you must delete the comments on the post first
+                string query = "DELETE FROM Announcment WHERE Announcment_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
+        
+        public string GetAnnouncementOwner(int id)
+        {
+            try
+            {
+                con.Open();
+                string query = "SELECT Sh_Email FROM Announcment WHERE Announcment_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", id);
+                object res = cmd.ExecuteScalar();
+                if (res == null || res == DBNull.Value) return null;
+                return Convert.ToString(res);
+            }
+            catch
+            {
+                return null;
+            }
+            finally { con.Close(); }
+        }
+        public DataTable GetCommentsForAnnouncement(int announcementId)
+          {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+              string query = @"SELECT announcement_Id, participant_Email, text, time
+                         FROM Comments
+                         WHERE announcement_Id = @aid
+                         ORDER BY time";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@aid", announcementId);
+                dt.Load(cmd.ExecuteReader());
+            }
+            finally { con.Close(); }
+            return dt;
+        }
+
+        public bool AddComment(int announcementId, string participantEmail, string text)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+                string query = @"INSERT INTO Comments (Announcement_Id, Participant_Email, text, time)
+                         VALUES (@aid, @email, @text, GETDATE())";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@aid", announcementId);
+                cmd.Parameters.AddWithValue("@email", participantEmail.ToLower());
+                cmd.Parameters.AddWithValue("@text", text);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
+
+        public bool UpdateComment(int id, string participantEmail, string text)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+                string query = @"UPDATE Comments 
+                         SET text = @text 
+                         WHERE Announcement_Id = @id AND Participant_Email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", id);
+                cmd.Parameters.AddWithValue("@email", participantEmail.ToLower());
+                cmd.Parameters.AddWithValue("@text", text);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
+
+        public bool DeleteComment(int announcementId, string participantEmail, DateTime time)
+        {
+            bool status = false;
+            try
+            {
+                con.Open();
+                string query = @"DELETE FROM Comments 
+                         WHERE Announcement_Id = @id 
+                           AND Participant_Email = @email
+                           AND time = @time";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", announcementId);
+                cmd.Parameters.AddWithValue("@email", participantEmail.ToLower());
+                cmd.Parameters.AddWithValue("@time", time);
+                cmd.ExecuteNonQuery();
+                status = true;
+            }
+            catch { status = false; }
+            finally { con.Close(); }
+            return status;
+        }
         public bool Examnameexists(string examname)
         {
             bool status = true;
@@ -1079,7 +1301,6 @@ namespace Quran_Memorizing_System.Models
             return timeleft;
         }
 
-
         public DataTable getallperformancereview(string email)
         {
             DataTable dt = new DataTable(); 
@@ -1089,6 +1310,28 @@ namespace Quran_Memorizing_System.Models
                 string query = "SELECT * FROM Performance_Review WHERE Participant_Email = @email";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@email", email);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
+      
+        public DataTable GetExamsubmission(int examid)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Exam_Submissions WHERE Exam_ID = @examid";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@examid", examid);
                 dt.Load(cmd.ExecuteReader());
             }
             catch
@@ -1112,7 +1355,7 @@ namespace Quran_Memorizing_System.Models
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@examid", subid);
                 res = (string)cmd.ExecuteScalar();
-            }
+             }
             catch
             {
 
@@ -1124,6 +1367,29 @@ namespace Quran_Memorizing_System.Models
             return res;
         }
 
+        public void requestsession(string email, string date, int spage, int epage)
+        {
+            try
+            {
+                con.Open();
+                string query = "INSERT INTO Sessions (participant_email, session_date, start_page, end_page) values (@pemail, @date, @spage, @epage)";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@pemail", email);
+                cmd.Parameters.AddWithValue("@date", date);
+                cmd.Parameters.AddWithValue("@spage", spage);
+                cmd.Parameters.AddWithValue("@epage", epage);
+
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+          }
 
         public Dictionary<string, string> getsubmission(int subid, string email)
         {
@@ -1151,17 +1417,14 @@ namespace Quran_Memorizing_System.Models
             {
                 con.Close();
             }
-            
-            
-            return dict;
+        return dict;
         }
 
         public void addperformancereview(int subid, int rating, string sh_email)
-        {
+          {
             try
             {
                 con.Open();
-                
                 string p_email = "";
                 string querytemp = "SELECT Participant_Email FROM Exam_Submissions WHERE Exam_Sub_ID = @subid;";
                 SqlCommand cmdtemp = new SqlCommand(querytemp, con);
@@ -1177,7 +1440,49 @@ namespace Quran_Memorizing_System.Models
                 cmd.Parameters.AddWithValue("@semail", sh_email);
                 cmd.Parameters.AddWithValue("@pemail", p_email);
                 cmd.ExecuteNonQuery();
+              }
+            catch
+            {
 
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+          //////////////
+
+        public DataTable getallsessions()
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Sessions WHERE sheikh_email is null";
+                SqlCommand cmd = new SqlCommand(query, con);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
+
+        public void Acceptrequest(string email, int sid)
+        {
+            try
+            {
+                con.Open();
+                string query = "UPDATE Sessions SET sheikh_email = @email, status = 'Done' WHERE Session_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                cmd.Parameters.AddWithValue("@id", sid);
+                cmd.ExecuteNonQuery();
             }
             catch
             {
@@ -1189,5 +1494,46 @@ namespace Quran_Memorizing_System.Models
             }
         }
 
+        public void Denyrequest(int sid)
+        {
+            try
+            {
+                con.Open();
+                string query = "Delete Sessions WHERE Session_ID = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", sid);
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public DataTable getsessionsrequestedbyuser(string email)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Sessions WHERE participant_email = @email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
+        }
     }
 }

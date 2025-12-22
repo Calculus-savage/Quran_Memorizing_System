@@ -24,14 +24,14 @@ namespace Quran_Memorizing_System.Pages
         public string Location { get; set; } = "";
 
         [BindProperty]
-        public string Availability { get; set; } = "";
+        public int Availability { get; set; }
 
         [BindProperty]
         public string LessonUrl { get; set; } = "";
 
         public IActionResult OnGet()
         {
-            string cs = _configuration.GetConnectionString("DefaultConnection");
+            string cs = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
 
             using SqlConnection con = new SqlConnection(cs);
             using SqlCommand cmd = new SqlCommand(
@@ -48,7 +48,7 @@ namespace Quran_Memorizing_System.Pages
             {
                 Title = reader["Title"].ToString();
                 Location = reader["Location"].ToString();
-                Availability = reader["Availability"].ToString();
+                Availability = Convert.ToInt32(reader["Availability"]);
                 LessonUrl = reader["lesson_url"].ToString();
             }
             else
