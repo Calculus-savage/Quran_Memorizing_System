@@ -1,0 +1,43 @@
+@page
+@model Quran_Memorizing_System.Pages.AvailableExamsModel
+@{
+    ViewData["Title"] = "Available Exams";
+}
+
+<div class="container mt-5">
+    <h2>Available Exams</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Duration (mins)</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AvailableExams.Rows.Count > 0)
+            {
+                foreach (System.Data.DataRow row in Model.AvailableExams.Rows)
+                {
+                    <tr>
+                        <td>@row["Title"]</td>
+                        <td>@row["starttime"]</td>
+                        <td>@row["endtime"]</td>
+                        <td>@row["examduration"]</td>
+                        <td>
+                            <a asp-page="/Exam" asp-route-id="@row["Exam_ID"]" class="btn btn-primary">Start Exam</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center">No exams available at the moment.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

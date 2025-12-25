@@ -95,7 +95,7 @@ namespace Quran_Memorizing_System.Pages
 
         public IActionResult OnPostDelete(int lessonId)
         {
-            string connectionString = _configuration.GetConnectionString("DefaultConnection");
+            string connectionString = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
             using SqlConnection con = new SqlConnection(connectionString);
             using SqlCommand cmd = new SqlCommand("DELETE FROM Lessons WHERE Lesson_ID=@id", con);
             cmd.Parameters.AddWithValue("@id", lessonId);

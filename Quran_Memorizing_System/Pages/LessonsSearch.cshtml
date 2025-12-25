@@ -33,7 +33,7 @@
                         <p><strong>Location:</strong> @lesson["Location"]</p>
                         <p>
                                          <strong>Availability:</strong>
-                        @(Convert.ToBoolean(lesson["Availability"]) ? "Public" : "Private")
+                        @(Convert.ToInt32(lesson["Availability"]) == 1 ? "Public" : "Private")
                         </p>
                         @* <p><strong>Availability:</strong> @lesson["Availability"]</p> *@
                     </div>

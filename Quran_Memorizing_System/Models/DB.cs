@@ -12,7 +12,7 @@ namespace Quran_Memorizing_System.Models
 
         public DB()
         {
-            connectionstring = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MemorizationSystem2;Integrated Security=True;";
+            connectionstring = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
             con = new SqlConnection(connectionstring);
         }
 
@@ -1512,6 +1512,28 @@ namespace Quran_Memorizing_System.Models
             {
                 con.Close();
             }
+        }
+
+
+        public DataTable getAvailableExams(string email)
+        {
+            DataTable dt = new DataTable();
+            try
+            {
+                con.Open();
+                string query = "SELECT * FROM Exams WHERE PublicAvailabilty = 1 OR Circle_ID IN (SELECT Circle_ID FROM Participant_Circle_Attend WHERE Participant_Email = @email)";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", email);
+                dt.Load(cmd.ExecuteReader());
+            }
+            catch
+            {
+            }
+            finally
+            {
+                con.Close();
+            }
+            return dt;
         }
 
         public DataTable getsessionsrequestedbyuser(string email)

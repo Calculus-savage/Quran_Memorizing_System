@@ -61,7 +61,7 @@ namespace Quran_Memorizing_System.Pages
 
         public IActionResult OnPost()
         {
-            string cs = _configuration.GetConnectionString("DefaultConnection");
+            string cs = "Data Source=MAZEN\\SQLEXPRESS;Initial Catalog=MemorizationSystem;Integrated Security=True;";
 
             using SqlConnection con = new SqlConnection(cs);
             using SqlCommand cmd = new SqlCommand(
