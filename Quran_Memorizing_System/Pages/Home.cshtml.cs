@@ -132,6 +132,31 @@ namespace Quran_Memorizing_System.Pages
             return "";
         }
 
+        public IActionResult OnPostAddcircule()
+        {
+            if (db.circuleNameExists(newcirculename))
+            {
+                ModelState.AddModelError("newcirculename", "This name already exists");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                setuser();
+                Circles = db.getusercirules(user.Email, user.role);
+                return Page();
+            }
+
+            if (db.addCircule(newcirculename, ispublic, HttpContext.Session.GetString("email")))
+            {
+                TempData["SuccessMessage"] = "You Added the Circule";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Something is wrong";
+            }
+            return RedirectToPage("/Home");
+        }
+
 
     }
 }
