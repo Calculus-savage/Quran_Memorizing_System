@@ -22,7 +22,7 @@ namespace Quran_Memorizing_System.Pages
         public void OnGet()
         {
             int id = int.Parse(Request.Query["id"]);
-            string cs = _configuration.GetConnectionString("DefaultConnection") ?? "Data Source=Elabd;Initial Catalog=MemorizationSystem;Integrated Security=True;";
+            string cs = _configuration.GetConnectionString("DefaultConnection");
 
             using SqlConnection con = new SqlConnection(cs);
             using SqlCommand cmd = new SqlCommand(
